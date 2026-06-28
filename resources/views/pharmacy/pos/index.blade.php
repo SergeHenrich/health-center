@@ -1,9 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Point de vente')
-@section('page-title', 'Point de vente — Pharmacie')
+@section('page-title', 'Point de vente - Pharmacie')
 
 @section('content')
-<div class="flex gap-6 h-[calc(100vh-12rem)]" x-data="posApp()">
+<div class="flex gap-6 h-[calc(100vh-12rem)]"
+     x-data="posApp({{ json_encode(array_values($cart)) }}, {{ $cartTotal }})">
     {{-- Left: Product search & listing --}}
     <div class="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-4 border-b border-gray-100">
@@ -124,7 +125,7 @@
             {{-- Patient selection (optional) --}}
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">
-                    Patient <span class="text-gray-400">(optionnel — Client de passage par défaut)</span>
+                    Patient <span class="text-gray-400">(optionnel - Client de passage par défaut)</span>
                 </label>
                 <div class="relative">
                     <input type="text" x-model="patientQuery" @input.debounce.300ms="searchPatients()"
@@ -215,14 +216,14 @@
 
 @push('scripts')
 <script>
-function posApp() {
+function posApp(cart = [], cartTotal = 0) {
     return {
         query: '',
         filter: 'Tous',
         results: [],
         loading: false,
-        cart: @json(array_values($cart)),
-        cartTotal: {{ $cartTotal }},
+        cart: cart,
+        cartTotal: cartTotal,
         showPaymentModal: false,
         patientQuery: '',
         patientResults: [],
