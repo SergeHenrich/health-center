@@ -210,6 +210,7 @@ class PosController extends Controller
                     'due_date'         => today(),
                     'notes'            => $validated['notes'] ?? null,
                     'invoiceable_type' => 'pharmacy_pos',
+                    'invoiceable_id'   => null,
                 ]);
 
                 $payment = $this->billingService->recordPayment($invoice, [
