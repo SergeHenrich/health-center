@@ -121,9 +121,11 @@
                 <span class="text-xl font-bold text-gray-900" x-text="formatPrice(cartTotal)"></span>
             </div>
 
-            {{-- Patient selection --}}
+            {{-- Patient selection (optional) --}}
             <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">Patient</label>
+                <label class="block text-xs font-medium text-gray-600 mb-1">
+                    Patient <span class="text-gray-400">(optionnel — Client de passage par défaut)</span>
+                </label>
                 <div class="relative">
                     <input type="text" x-model="patientQuery" @input.debounce.300ms="searchPatients()"
                            placeholder="Rechercher un patient..."
@@ -149,12 +151,15 @@
                         </button>
                     </div>
                 </template>
+                <template x-if="!selectedPatient">
+                    <div class="mt-1 text-xs text-gray-400">
+                        <i class="fa-solid fa-user-slash mr-1"></i> Client de passage
+                    </div>
+                </template>
             </div>
 
             <button @click="openPaymentModal()"
-                    :disabled="!selectedPatient"
-                    class="w-full py-3 rounded-xl text-sm font-semibold transition"
-                    :class="selectedPatient ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
+                    class="w-full py-3 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition">
                 <i class="fa-solid fa-credit-card mr-2"></i> Procéder au paiement
             </button>
         </div>
@@ -168,7 +173,7 @@
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Finaliser la vente</h3>
         <form method="POST" action="{{ route('pharmacy.pos.checkout') }}" class="space-y-4">
             @csrf
-            <input type="hidden" name="patient_id" :value="selectedPatient?.id">
+            <input type="hidden" name="patient_id" :value="selectedPatient?.id || ''">
             <div class="flex justify-between text-sm">
                 <span class="text-gray-500">Total à payer</span>
                 <span class="text-xl font-bold text-gray-900" x-text="formatPrice(cartTotal)"></span>
@@ -298,7 +303,6 @@ function posApp() {
         },
 
         openPaymentModal() {
-            if (!this.selectedPatient) { alert('Veuillez sélectionner un patient.'); return; }
             this.showPaymentModal = true;
         },
 

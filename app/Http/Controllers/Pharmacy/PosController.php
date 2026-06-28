@@ -177,7 +177,7 @@ class PosController extends Controller
     public function checkout(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'patient_id' => 'required|exists:patients,id',
+            'patient_id' => 'nullable|exists:patients,id',
             'method'     => 'required|in:cash,mobile_money,bank_transfer,card,insurance,other',
             'amount'     => 'required|numeric|min:0.01',
             'reference_code' => 'nullable|string|max:100',
@@ -190,8 +190,17 @@ class PosController extends Controller
             return back()->with('error', 'Le panier est vide.');
         }
 
+        $patientId = $validated['patient_id'];
+        if (!$patientId) {
+            $walkIn = Patient::where('patient_code', 'WALK-IN')->first();
+            if (!$walkIn) {
+                return back()->with('error', 'Patient "Client de passage" introuvable. Lancez les seeders.');
+            }
+            $patientId = $walkIn->id;
+        }
+
         try {
-            $result = DB::transaction(function () use ($validated, $cart) {
+            $result = DB::transaction(function () use ($validated, $cart, $patientId) {
                 $items = [];
                 foreach ($cart as $item) {
                     $lineTotal = $item['unit_price'] * $item['quantity'];
@@ -205,7 +214,7 @@ class PosController extends Controller
                 }
 
                 $invoice = $this->billingService->generateInvoice([
-                    'patient_id'       => $validated['patient_id'],
+                    'patient_id'       => $patientId,
                     'items'            => $items,
                     'due_date'         => today(),
                     'notes'            => $validated['notes'] ?? null,
