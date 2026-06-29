@@ -12,6 +12,7 @@ use App\Models\PrescriptionItem;
 use App\Models\Stock;
 use App\Models\StockBatch;
 use App\Models\User;
+use App\Services\BillingService;
 use App\Services\Pharmacy\ClinicalPharmacyService;
 use App\Services\PharmacyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -304,5 +305,25 @@ class DispensationTest extends TestCase
         $this->get(route('dispensations.index'))
             ->assertOk()
             ->assertSee(strtoupper($dispensation->invoice->status));
+    }
+
+    public function test_dispensation_rollbacks_on_invoice_failure(): void
+    {
+        $this->actingAs($this->pharmacist);
+        $this->approvePrescription();
+
+        $this->mock(BillingService::class, function ($mock) {
+            $mock->shouldReceive('generateInvoice')
+                ->once()
+                ->andThrow(new \RuntimeException('Échec simulation génération facture'));
+        });
+
+        $this->post(route('dispensations.store'), [
+            'prescription_id' => $this->prescription->id,
+        ])->assertSessionHas('error');
+
+        $this->assertCount(0, Dispensation::all());
+        $this->assertCount(0, Invoice::all());
+        $this->assertEquals(100, StockBatch::active()->where('medicine_id', $this->medicine->id)->sum('quantity_available'));
     }
 }
