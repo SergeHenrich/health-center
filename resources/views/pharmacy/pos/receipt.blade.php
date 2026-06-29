@@ -23,7 +23,7 @@
                 <i class="fa-solid fa-hospital-user text-blue-600 text-xl"></i>
                 <span class="text-lg font-bold text-gray-800">HealthCenter</span>
             </div>
-            <p class="text-xs text-gray-500">Pharmacie — Centre de santé de référence</p>
+            <p class="text-xs text-gray-500">Pharmacie - Centre de santé de référence</p>
             <p class="text-xs text-gray-500">Douala, Cameroun</p>
             <div class="mt-3 text-sm font-mono font-bold text-gray-800">{{ $invoice->invoice_number }}</div>
             <div class="text-xs text-gray-500">{{ $invoice->invoice_date->format('d/m/Y H:i') }}</div>

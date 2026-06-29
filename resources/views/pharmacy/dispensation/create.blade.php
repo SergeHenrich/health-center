@@ -18,10 +18,10 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner une ordonnance *</label>
             <select name="prescription_id" required
                     class="w-full px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">— Choisir —</option>
+                <option value="">- Choisir -</option>
                 @foreach($prescriptions as $p)
                 <option value="{{ $p->id }}" {{ old('prescription_id') == $p->id ? 'selected' : '' }}>
-                    {{ $p->prescription_number }} — {{ $p->patient?->getFullName() ?? 'N/A' }}
+                    {{ $p->prescription_number }} - {{ $p->patient?->getFullName() ?? 'N/A' }}
                     ({{ $p->items->count() }} article(s))
                 </option>
                 @endforeach

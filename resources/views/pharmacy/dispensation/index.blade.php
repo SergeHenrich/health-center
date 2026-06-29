@@ -27,10 +27,10 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($dispensations as $d)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-4 font-mono text-xs text-gray-500">{{ $d->prescription?->prescription_number ?? '—' }}</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">{{ $d->prescription?->patient?->getFullName() ?? '—' }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ $d->pharmacist?->getFullName() ?? '—' }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ $d->dispensed_at?->format('d/m/Y H:i') ?? '—' }}</td>
+                    <td class="px-6 py-4 font-mono text-xs text-gray-500">{{ $d->prescription?->prescription_number ?? '-' }}</td>
+                    <td class="px-6 py-4 font-medium text-gray-800">{{ $d->prescription?->patient?->getFullName() ?? '-' }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ $d->pharmacist?->getFullName() ?? '-' }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ $d->dispensed_at?->format('d/m/Y H:i') ?? '-' }}</td>
                     <td class="px-6 py-4 text-center">
                         @if($d->relationLoaded('invoice') && $d->invoice)
                             <span class="px-2 py-0.5 rounded-full text-xs font-medium
@@ -40,7 +40,7 @@
                                 {{ strtoupper($d->invoice->status) }}
                             </span>
                         @else
-                            <span class="text-gray-300">—</span>
+                            <span class="text-gray-300">-</span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-right">

@@ -10,23 +10,23 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
             <div>
                 <span class="text-gray-500">Ordonnance :</span>
-                <span class="font-mono font-medium text-gray-800 ml-2">{{ $dispensation->prescription?->prescription_number ?? '—' }}</span>
+                <span class="font-mono font-medium text-gray-800 ml-2">{{ $dispensation->prescription?->prescription_number ?? '-' }}</span>
             </div>
             <div>
                 <span class="text-gray-500">Patient :</span>
-                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->prescription?->patient?->getFullName() ?? '—' }}</span>
+                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->prescription?->patient?->getFullName() ?? '-' }}</span>
             </div>
             <div>
                 <span class="text-gray-500">Médecin :</span>
-                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->prescription?->doctor?->getFullName() ?? '—' }}</span>
+                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->prescription?->doctor?->getFullName() ?? '-' }}</span>
             </div>
             <div>
                 <span class="text-gray-500">Pharmacien :</span>
-                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->pharmacist?->getFullName() ?? '—' }}</span>
+                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->pharmacist?->getFullName() ?? '-' }}</span>
             </div>
             <div>
                 <span class="text-gray-500">Date :</span>
-                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->dispensed_at?->format('d/m/Y H:i') ?? '—' }}</span>
+                <span class="font-medium text-gray-800 ml-2">{{ $dispensation->dispensed_at?->format('d/m/Y H:i') ?? '-' }}</span>
             </div>
             <div>
                 <span class="text-gray-500">Statut ordonnance :</span>
@@ -34,7 +34,7 @@
                     @if($dispensation->prescription?->status === 'dispensed') bg-green-100 text-green-700
                     @elseif($dispensation->prescription?->status === 'partially_dispensed') bg-amber-100 text-amber-700
                     @else bg-gray-100 text-gray-600 @endif">
-                    {{ $dispensation->prescription?->status ?? '—' }}
+                    {{ $dispensation->prescription?->status ?? '-' }}
                 </span>
             </div>
         </div>
@@ -55,7 +55,7 @@
             <tbody class="divide-y divide-gray-50">
                 @forelse($dispensation->items as $item)
                 <tr class="hover:bg-gray-50 transition">
-                    <td class="px-6 py-3 font-medium text-gray-800">{{ $item->medicine?->name ?? '—' }}</td>
+                    <td class="px-6 py-3 font-medium text-gray-800">{{ $item->medicine?->name ?? '-' }}</td>
                     <td class="px-6 py-3 text-right text-gray-700">{{ $item->quantity_dispensed }}</td>
                     <td class="px-6 py-3 text-right text-gray-700">{{ number_format($item->unit_price, 0, ',', ' ') }} XAF</td>
                     <td class="px-6 py-3 text-right font-medium text-gray-800">{{ number_format($item->quantity_dispensed * $item->unit_price, 0, ',', ' ') }} XAF</td>
