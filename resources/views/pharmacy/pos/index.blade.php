@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="flex gap-6 h-[calc(100vh-12rem)]"
-     x-data="posApp({{ json_encode(array_values($cart)) }}, {{ $cartTotal }})">
+     x-data="posApp({{ \Illuminate\Support\Js::from(array_values($cart)) }}, {{ \Illuminate\Support\Js::from($cartTotal) }})">
     {{-- Left: Product search & listing --}}
     <div class="flex-1 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-4 border-b border-gray-100">
