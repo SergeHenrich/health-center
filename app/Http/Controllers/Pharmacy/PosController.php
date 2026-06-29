@@ -5,20 +5,17 @@ namespace App\Http\Controllers\Pharmacy;
 use App\Http\Controllers\Controller;
 use App\Models\Medicine;
 use App\Models\Patient;
-use App\Models\Stock;
-use App\Models\StockMovement;
-use App\Services\BillingService;
+use App\Services\Pharmacy\PosService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PosController extends Controller
 {
     private const CART_KEY = 'pharmacy_pos_cart';
 
-    public function __construct(private readonly BillingService $billingService) {}
+    public function __construct(private readonly PosService $posService) {}
 
     public function index(): View
     {
@@ -174,80 +171,19 @@ class PosController extends Controller
 
         $cart = session()->get(self::CART_KEY, []);
 
-        if (empty($cart)) {
-            return back()->with('error', 'Le panier est vide.');
-        }
-
-        $patientId = $validated['patient_id'];
-        if (!$patientId) {
-            $walkIn = Patient::where('patient_code', 'WALK-IN')->first();
-            if (!$walkIn) {
-                return back()->with('error', 'Patient "Client de passage" introuvable. Lancez les seeders.');
-            }
-            $patientId = $walkIn->id;
-        }
-
         try {
-            $result = DB::transaction(function () use ($validated, $cart, $patientId) {
-                $items = [];
-                foreach ($cart as $item) {
-                    $lineTotal = $item['unit_price'] * $item['quantity'];
-                    $items[] = [
-                        'description'   => $item['name'] . ($item['strength'] ? " {$item['strength']}" : ''),
-                        'item_type'     => $item['requires_prescription'] ? 'medicine' : 'other',
-                        'quantity'      => $item['quantity'],
-                        'unit_price'    => $item['unit_price'],
-                        'reference_id'  => $item['medicine_id'],
-                    ];
-                }
+            $result = $this->posService->checkout(
+                $cart,
+                $validated,
+                $validated['patient_id'],
+            );
 
-                $invoice = $this->billingService->generateInvoice([
-                    'patient_id'       => $patientId,
-                    'items'            => $items,
-                    'due_date'         => today(),
-                    'notes'            => $validated['notes'] ?? null,
-                    'invoiceable_type' => 'pharmacy_pos',
-                    'invoiceable_id'   => null,
-                ]);
-
-                $payment = $this->billingService->recordPayment($invoice, [
-                    'amount'         => $validated['amount'],
-                    'method'         => $validated['method'],
-                    'reference_code' => $validated['reference_code'] ?? null,
-                ]);
-
-                foreach ($cart as $item) {
-                    $stock = Stock::where('medicine_id', $item['medicine_id'])->lockForUpdate()->first();
-                    if ($stock) {
-                        $stock->removeStock($item['quantity']);
-
-                        StockMovement::create([
-                            'stock_id'       => $stock->id,
-                            'medicine_id'    => $item['medicine_id'],
-                            'user_id'        => auth()->id(),
-                            'type'           => 'out',
-                            'quantity'       => $item['quantity'],
-                            'unit_cost'      => $item['unit_price'],
-                            'reference_type' => 'pos_sale',
-                            'reference_id'   => $invoice->id,
-                            'reason'         => 'Vente POS',
-                            'moved_at'       => now(),
-                        ]);
-                    }
-                }
-
-                session()->forget(self::CART_KEY);
-
-                return [
-                    'invoice' => $invoice,
-                    'payment' => $payment,
-                ];
-            });
+            session()->forget(self::CART_KEY);
 
             return redirect()
                 ->route('pharmacy.pos.receipt', $result['invoice'])
                 ->with('success', 'Vente effectuée avec succès.');
-        } catch (\App\Exceptions\InsufficientStockException $e) {
+        } catch (\RuntimeException $e) {
             return back()->with('error', $e->getMessage());
         } catch (\Exception $e) {
             return back()->with('error', 'Erreur lors de la vente : ' . $e->getMessage());
