@@ -93,20 +93,12 @@ class DispensationController extends Controller
 
     public function destroy(Dispensation $dispensation): RedirectResponse
     {
-        // Check authorization: only the dispensing pharmacist or admin can reverse
-        if ($dispensation->pharmacist_id !== auth()->id() && !auth()->user()->hasRole('administrator')) {
-            return back()->with('error', 'Vous n\'êtes pas autorisé à annuler cette dispensation.');
-        }
+        $error = $this->guardCannotReverse($dispensation)
+              ?? $this->guardAlreadyReversed($dispensation)
+              ?? $this->guardPrescriptionNotReversible($dispensation);
 
-        // Check if dispensation still exists (not already reversed)
-        if (!$dispensation->exists) {
-            return back()->with('error', 'Cette dispensation a déjà été annulée.');
-        }
-
-        // Check if prescription has already been fully reversed by another dispensation reversal
-        $prescription = $dispensation->prescription;
-        if ($prescription->status === 'pending') {
-            return back()->with('error', 'Cette dispensation ne peut pas être annulée : l\'ordonnance est déjà en état pending.');
+        if ($error) {
+            return $error;
         }
 
         try {
@@ -116,5 +108,30 @@ class DispensationController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Erreur lors de l\'annulation : ' . $e->getMessage());
         }
+    }
+
+    private function guardCannotReverse(Dispensation $dispensation): ?RedirectResponse
+    {
+        if ($dispensation->pharmacist_id !== auth()->id() && !auth()->user()->hasRole('administrator')) {
+            return back()->with('error', 'Vous n\'êtes pas autorisé à annuler cette dispensation.');
+        }
+        return null;
+    }
+
+    private function guardAlreadyReversed(Dispensation $dispensation): ?RedirectResponse
+    {
+        if (!$dispensation->exists) {
+            return back()->with('error', 'Cette dispensation a déjà été annulée.');
+        }
+        return null;
+    }
+
+    private function guardPrescriptionNotReversible(Dispensation $dispensation): ?RedirectResponse
+    {
+        $prescription = $dispensation->prescription;
+        if ($prescription->status === 'pending') {
+            return back()->with('error', 'Cette dispensation ne peut pas être annulée : l\'ordonnance est déjà en état pending.');
+        }
+        return null;
     }
 }
