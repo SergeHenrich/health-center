@@ -23,7 +23,7 @@ class PosController extends Controller
     public function index(): View
     {
         $cart = session()->get(self::CART_KEY, []);
-        $cartTotal = collect($cart)->sum(fn($i) => $i['unit_price'] * $i['quantity']);
+        $cartTotal = $this->getCartTotal($cart);
 
         return view('pharmacy.pos.index', compact('cart', 'cartTotal'));
     }
@@ -120,11 +120,7 @@ class PosController extends Controller
 
         session()->put(self::CART_KEY, $cart);
 
-        return response()->json([
-            'cart'       => array_values($cart),
-            'cart_count' => count($cart),
-            'cart_total' => collect($cart)->sum(fn($i) => $i['unit_price'] * $i['quantity']),
-        ]);
+        return $this->cartResponse($cart);
     }
 
     public function removeFromCart(Request $request): JsonResponse
@@ -137,11 +133,7 @@ class PosController extends Controller
         unset($cart[$validated['medicine_id']]);
         session()->put(self::CART_KEY, $cart);
 
-        return response()->json([
-            'cart'       => array_values($cart),
-            'cart_count' => count($cart),
-            'cart_total' => collect($cart)->sum(fn($i) => $i['unit_price'] * $i['quantity']),
-        ]);
+        return $this->cartResponse($cart);
     }
 
     public function updateCartItem(Request $request): JsonResponse
@@ -167,11 +159,7 @@ class PosController extends Controller
 
         session()->put(self::CART_KEY, $cart);
 
-        return response()->json([
-            'cart'       => array_values($cart),
-            'cart_count' => count($cart),
-            'cart_total' => collect($cart)->sum(fn($i) => $i['unit_price'] * $i['quantity']),
-        ]);
+        return $this->cartResponse($cart);
     }
 
     public function checkout(Request $request): RedirectResponse
@@ -270,5 +258,19 @@ class PosController extends Controller
     {
         $invoice->load(['patient', 'items', 'payments.receivedBy', 'createdBy']);
         return view('pharmacy.pos.receipt', compact('invoice'));
+    }
+
+    private function getCartTotal(array $cart): float
+    {
+        return collect($cart)->sum(fn($i) => $i['unit_price'] * $i['quantity']);
+    }
+
+    private function cartResponse(array $cart): JsonResponse
+    {
+        return response()->json([
+            'cart'       => array_values($cart),
+            'cart_count' => count($cart),
+            'cart_total' => $this->getCartTotal($cart),
+        ]);
     }
 }
