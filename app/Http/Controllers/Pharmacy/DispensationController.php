@@ -7,18 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Pharmacy\StoreDispensationRequest;
 use App\Models\Dispensation;
 use App\Models\Prescription;
-use App\Services\BillingService;
 use App\Services\PharmacyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DispensationController extends Controller
 {
     public function __construct(
         private readonly PharmacyService $pharmacyService,
-        private readonly BillingService $billingService,
     ) {}
 
     public function index(): View
@@ -47,36 +44,13 @@ class DispensationController extends Controller
     public function store(StoreDispensationRequest $request): RedirectResponse
     {
         try {
-            $result = DB::transaction(function () use ($request) {
-                $prescription = Prescription::with('items.medicine')->findOrFail($request->prescription_id);
-                $itemsData = $request->input('items', []);
-                $dispensation = $this->pharmacyService->dispense($prescription, $itemsData);
+            $prescription = Prescription::with('items.medicine')->findOrFail($request->prescription_id);
+            $itemsData = $request->input('items', []);
 
-                $dispensation->load('items.medicine');
-
-                $invoiceItems = $dispensation->items->map(fn($di) => [
-                    'description'   => $di->medicine?->name
-                        . ($di->medicine?->strength ? " {$di->medicine->strength}" : ''),
-                    'item_type'     => 'medicine',
-                    'quantity'      => $di->quantity_dispensed,
-                    'unit_price'    => $di->unit_price,
-                    'reference_id'  => $di->medicine_id,
-                ])->toArray();
-
-                $invoice = $this->billingService->generateInvoice([
-                    'patient_id'       => $prescription->patient_id,
-                    'due_date'         => today(),
-                    'notes'            => "Dispensation de l'ordonnance {$prescription->prescription_number}",
-                    'items'            => $invoiceItems,
-                    'invoiceable_type' => \App\Models\Dispensation::class,
-                    'invoiceable_id'   => $dispensation->id,
-                ]);
-
-                return $dispensation;
-            });
+            $result = $this->pharmacyService->dispenseAndInvoice($prescription, $itemsData);
 
             return redirect()
-                ->route('dispensations.show', $result)
+                ->route('dispensations.show', $result['dispensation'])
                 ->with('success', "Dispensation effectuée et facture générée.");
         } catch (InsufficientStockException $e) {
             return back()->with('error', $e->getMessage());
