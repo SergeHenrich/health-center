@@ -53,7 +53,7 @@
         </a>
         @endhasanyrole
 
-        @hasanyrole('pharmacist|administrator')
+        @hasanyrole('pharmacist|preparateur|stock_manager|administrator')
         <div class="px-5 pt-3 pb-1 text-xs text-slate-400 uppercase tracking-widest">Pharmacie</div>
 
         <a href="{{ route('pharmacy.pos.index') }}"

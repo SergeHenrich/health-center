@@ -81,9 +81,9 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
         });
 
     // ── Pharmacy ──────────────────────────────────────────────
-    Route::middleware('role:pharmacist|administrator')
+    Route::middleware('role:pharmacist|preparateur|stock_manager|administrator')
         ->group(function () {
-            Route::resource('medicines', MedicineController::class);
+            Route::resource('medicines', MedicineController::class)->except(['edit']);
             Route::get('stock', [StockController::class, 'index'])->name('stock.index');
             Route::post('stock/{stock}/adjust', [StockController::class, 'adjust'])->name('stock.adjust');
             Route::resource('dispensations', DispensationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
