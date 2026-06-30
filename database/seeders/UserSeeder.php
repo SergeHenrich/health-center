@@ -62,6 +62,18 @@ class UserSeeder extends Seeder
                 'email' => 'directeur@healthcenter.cm', 'username' => 'directeur',
                 'role' => 'director',
             ],
+
+            // Pharmacy roles
+            [
+                'first_name' => 'Stéphane', 'last_name' => 'Essomba',
+                'email' => 'preparateur@healthcenter.cm', 'username' => 'preparateur',
+                'role' => 'preparateur',
+            ],
+            [
+                'first_name' => 'Bertrand', 'last_name' => 'Zanga',
+                'email' => 'stockmanager@healthcenter.cm', 'username' => 'stockmanager',
+                'role' => 'stock_manager',
+            ],
         ];
 
         foreach ($users as $data) {
