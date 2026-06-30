@@ -71,25 +71,31 @@
             <i class="fa-solid fa-book-medical w-5 text-center"></i> Livret
         </a>
 
+        @can('pharmacy.dispense')
         <a href="{{ route('dispensations.index') }}"
            class="flex items-center gap-3 px-5 py-2.5 hover:bg-slate-700 {{ request()->routeIs('dispensations.*') ? 'bg-blue-600' : '' }}">
             <i class="fa-solid fa-prescription-bottle w-5 text-center"></i> Dispensation
         </a>
+        @endcan
 
+        @can('pharmacy.validation')
         <a href="{{ route('validations.index') }}"
            class="flex items-center gap-3 px-5 py-2.5 hover:bg-slate-700 {{ request()->routeIs('validations.*') ? 'bg-blue-600' : '' }}">
             <i class="fa-solid fa-clipboard-check w-5 text-center"></i> Validation
         </a>
+        @endcan
 
         <a href="{{ route('purchase-orders.index') }}"
            class="flex items-center gap-3 px-5 py-2.5 hover:bg-slate-700 {{ request()->routeIs('purchase-orders.*') ? 'bg-blue-600' : '' }}">
             <i class="fa-solid fa-truck-medical w-5 text-center"></i> Commandes
         </a>
 
+        @can('pharmacy.suppliers.manage')
         <a href="{{ route('suppliers.index') }}"
            class="flex items-center gap-3 px-5 py-2.5 hover:bg-slate-700 {{ request()->routeIs('suppliers.*') ? 'bg-blue-600' : '' }}">
             <i class="fa-solid fa-truck-field w-5 text-center"></i> Fournisseurs
         </a>
+        @endcan
 
         <a href="{{ route('warehouses.index') }}"
            class="flex items-center gap-3 px-5 py-2.5 hover:bg-slate-700 {{ request()->routeIs('warehouses.*') ? 'bg-blue-600' : '' }}">

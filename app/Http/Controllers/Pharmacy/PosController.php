@@ -9,6 +9,7 @@ use App\Services\Pharmacy\PosService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class PosController extends Controller
@@ -161,6 +162,8 @@ class PosController extends Controller
 
     public function checkout(Request $request): RedirectResponse
     {
+        Gate::authorize('pharmacy.pos.sell');
+
         $validated = $request->validate([
             'patient_id' => 'nullable|exists:patients,id',
             'method'     => 'required|in:cash,mobile_money,bank_transfer,card,insurance,other',
