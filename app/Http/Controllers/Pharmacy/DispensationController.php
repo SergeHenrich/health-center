@@ -10,6 +10,7 @@ use App\Models\Prescription;
 use App\Services\PharmacyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class DispensationController extends Controller
@@ -20,6 +21,8 @@ class DispensationController extends Controller
 
     public function index(): View
     {
+        Gate::authorize('pharmacy.dispense');
+
         $dispensations = Dispensation::with(['prescription.patient', 'pharmacist', 'invoice'])
             ->latest('dispensed_at')
             ->paginate(20);
@@ -29,6 +32,8 @@ class DispensationController extends Controller
 
     public function create(Request $request): View
     {
+        Gate::authorize('pharmacy.dispense');
+
         $prescriptions = Prescription::with(['patient', 'items.medicine', 'latestValidation'])
             ->whereIn('status', ['pending', 'validated', 'validated_with_interventions', 'partially_dispensed'])
             ->latest()
@@ -61,12 +66,16 @@ class DispensationController extends Controller
 
     public function show(Dispensation $dispensation): View
     {
+        Gate::authorize('pharmacy.dispense');
+
         $dispensation->load(['prescription.patient', 'prescription.doctor', 'pharmacist', 'items.medicine', 'invoice']);
         return view('pharmacy.dispensation.show', compact('dispensation'));
     }
 
     public function destroy(Dispensation $dispensation): RedirectResponse
     {
+        Gate::authorize('pharmacy.dispense');
+
         $error = $this->guardCannotReverse($dispensation)
               ?? $this->guardAlreadyReversed($dispensation)
               ?? $this->guardPrescriptionNotReversible($dispensation);

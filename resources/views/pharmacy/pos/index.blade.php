@@ -34,7 +34,7 @@
             </div>
             <div x-show="!loading && results.length === 0 && query.length === 0"
                  class="text-center py-8 text-gray-400">
-                Commencez à taper pour rechercher.
+                Recherchez un médicament.
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <template x-for="med in results" :key="med.id">
