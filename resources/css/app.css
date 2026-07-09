@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* Main styles */
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
