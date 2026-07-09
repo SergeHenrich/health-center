@@ -30,6 +30,9 @@ class NarcoticRegisterController extends Controller
 
         $medicine->load('stock');
 
+        $balance = $this->narcoticService->getCurrentBalance($medicine);
+        $entries = $this->narcoticService->getRegister(['medicine_id' => $medicine->id]);
+
         return view('pharmacy.narcotics.show', compact('medicine', 'balance', 'entries'));
     }
 

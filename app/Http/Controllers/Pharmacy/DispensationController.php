@@ -95,7 +95,7 @@ class DispensationController extends Controller
 
     private function guardCannotReverse(Dispensation $dispensation): ?RedirectResponse
     {
-        if ($dispensation->pharmacist_id !== auth()->id() && !auth()->user()->can('pharmacy.dispense')) {
+        if ($dispensation->pharmacist_id !== auth()->id() && !auth()->user()->hasRole('administrator')) {
             return back()->with('error', 'Vous n\'êtes pas autorisé à annuler cette dispensation.');
         }
         return null;
