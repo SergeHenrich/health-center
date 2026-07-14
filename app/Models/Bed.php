@@ -19,4 +19,24 @@ class Bed extends Model
     {
         return $this->belongsTo(Room::class);
     }
+
+    public function currentHospitalization()
+    {
+        return $this->hasOne(Hospitalization::class)->latestOfMany();
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->status === 'available';
+    }
+
+    public function occupy(): void
+    {
+        $this->update(['status' => 'occupied']);
+    }
+
+    public function release(): void
+    {
+        $this->update(['status' => 'available']);
+    }
 }
