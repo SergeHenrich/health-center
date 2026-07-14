@@ -20,4 +20,9 @@ class Room extends Model
     {
         return $this->hasMany(Bed::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 }

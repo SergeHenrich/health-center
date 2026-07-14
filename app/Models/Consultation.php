@@ -53,4 +53,14 @@ class Consultation extends Model
     {
         return $this->hasMany(Prescription::class);
     }
+
+    public function scopeByDoctor($query, int $doctorId)
+    {
+        return $query->where('doctor_id', $doctorId);
+    }
+
+    public function scopeOpen($query)
+    {
+        return $query->where('status', 'open');
+    }
 }
