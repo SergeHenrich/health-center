@@ -49,6 +49,11 @@ class LabRequest extends Model
         return $this->hasMany(LabRequestItem::class);
     }
 
+    public function results(): HasMany
+    {
+        return $this->hasMany(LabResult::class);
+    }
+
     public function markAsCompleted(): void
     {
         $this->update(['status' => 'completed']);
