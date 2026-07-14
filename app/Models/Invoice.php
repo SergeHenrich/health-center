@@ -92,4 +92,14 @@ class Invoice extends Model
     {
         return max(0, (float) $this->total_amount - (float) $this->amount_paid);
     }
+
+    public function scopeOverdue($query)
+    {
+        return $query->where('status', 'overdue');
+    }
+
+    public function scopeUnpaid($query)
+    {
+        return $query->whereNotIn('status', ['paid', 'cancelled']);
+    }
 }
