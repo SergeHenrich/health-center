@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MedicationEvent extends Model
 {
     use HasFactory, SoftDeletes;
-    use SoftDeletes;
 
     protected $fillable = [
         'type', 'severity', 'status',

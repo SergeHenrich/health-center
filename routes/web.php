@@ -45,7 +45,7 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
     Route::middleware('role:administrator|receptionist|general_practitioner|specialist|nurse')
         ->group(function () {
             Route::resource('patients', PatientController::class);
-            Route::resource('appointments', AppointmentController::class);
+            Route::resource('appointments', AppointmentController::class)->except(['destroy']);
             Route::get('/queue', [QueueController::class, 'index'])->name('queue.index');
             Route::post('/queue/{queue}/call', [QueueController::class, 'call'])->name('queue.call');
             Route::post('/queue/{queue}/complete', [QueueController::class, 'complete'])->name('queue.complete');
@@ -54,11 +54,11 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
     // ── Medical ───────────────────────────────────────────────
     Route::middleware('role:general_practitioner|specialist|administrator')
         ->group(function () {
-            Route::resource('consultations', ConsultationController::class);
+            Route::resource('consultations', ConsultationController::class)->only(['index', 'create', 'store', 'show', 'update']);
             Route::post('consultations/{consultation}/close', [ConsultationController::class, 'close'])
                 ->name('consultations.close');
-            Route::resource('consultations.diagnoses', DiagnosisController::class)->shallow();
-            Route::resource('consultations.prescriptions', PrescriptionController::class)->shallow();
+            Route::resource('consultations.diagnoses', DiagnosisController::class)->shallow()->only(['store', 'destroy']);
+            Route::resource('consultations.prescriptions', PrescriptionController::class)->shallow()->only(['create', 'store', 'show']);
         });
 
     // ── Vital Signs (Nurse + Doctor) ──────────────────────────
@@ -70,7 +70,7 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
     // ── Laboratory ────────────────────────────────────────────
     Route::middleware('role:general_practitioner|specialist|administrator')
         ->group(function () {
-            Route::resource('lab-requests', LabRequestController::class);
+            Route::resource('lab-requests', LabRequestController::class)->only(['index', 'create', 'store', 'show']);
         });
 
     Route::middleware('role:general_practitioner|specialist|administrator|nurse')
@@ -87,7 +87,7 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
             Route::get('stock', [StockController::class, 'index'])->name('stock.index');
             Route::post('stock/{stock}/adjust', [StockController::class, 'adjust'])->name('stock.adjust');
             Route::resource('dispensations', DispensationController::class)->only(['index', 'create', 'store', 'show', 'destroy']);
-            Route::resource('purchase-orders', PurchaseOrderController::class);
+            Route::resource('purchase-orders', PurchaseOrderController::class)->only(['index', 'create', 'store', 'show']);
             Route::post('purchase-orders/{purchaseOrder}/approve', [PurchaseOrderController::class, 'approve'])
                 ->name('purchase-orders.approve');
             Route::post('purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive'])
@@ -99,7 +99,7 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
             Route::post('suppliers/{supplier}/evaluations', [SupplierController::class, 'storeEvaluation'])->name('suppliers.evaluations.store');
 
             // Phase 1 — Warehouses
-            Route::resource('warehouses', WarehouseController::class);
+            Route::resource('warehouses', WarehouseController::class)->except(['destroy']);
             Route::get('warehouses/{warehouse}', [WarehouseController::class, 'show'])->name('warehouses.show');
             Route::post('warehouses/stock/{warehouseStock}/adjust', [WarehouseController::class, 'adjustStock'])->name('warehouses.stock.adjust');
             Route::post('warehouses/transfer', [WarehouseController::class, 'transfer'])->name('warehouses.transfer');
@@ -173,8 +173,8 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
     // ── Hospitalization ───────────────────────────────────────
     Route::middleware('role:general_practitioner|specialist|nurse|administrator')
         ->group(function () {
-            Route::resource('rooms', RoomController::class);
-            Route::resource('hospitalizations', HospitalizationController::class);
+            Route::resource('rooms', RoomController::class)->only(['index', 'create', 'store', 'show']);
+            Route::resource('hospitalizations', HospitalizationController::class)->only(['index', 'create', 'store', 'show']);
             Route::post('hospitalizations/{hosp}/discharge', [HospitalizationController::class, 'discharge'])
                 ->name('hospitalizations.discharge');
         });
@@ -182,9 +182,9 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
     // ── Billing ───────────────────────────────────────────────
     Route::middleware('role:cashier|administrator')
         ->group(function () {
-            Route::resource('invoices', InvoiceController::class);
+            Route::resource('invoices', InvoiceController::class)->only(['index', 'create', 'store', 'show']);
             Route::resource('payments', PaymentController::class)->only(['index', 'store']);
-            Route::resource('expenses', ExpenseController::class);
+            Route::resource('expenses', ExpenseController::class)->only(['index', 'create', 'store']);
             Route::post('expenses/{expense}/approve', [ExpenseController::class, 'approve'])
                 ->name('expenses.approve');
             Route::get('invoices/{invoice}/print', [InvoiceController::class, 'print'])
@@ -196,7 +196,7 @@ Route::middleware(['auth', 'App\Http\Middleware\AuditLogger'])->group(function (
         ->prefix('admin')
         ->name('admin.')
         ->group(function () {
-            Route::resource('users', UserController::class);
+            Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
             Route::resource('settings', SettingController::class)->only(['index', 'update']);
         });
 

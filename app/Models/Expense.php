@@ -41,4 +41,12 @@ class Expense extends Model
     {
         return $this->belongsTo(User::class, 'approved_by_id');
     }
+
+    public function approve(User $user): void
+    {
+        $this->update([
+            'status'         => 'approved',
+            'approved_by_id' => $user->id,
+        ]);
+    }
 }
