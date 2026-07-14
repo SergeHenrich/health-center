@@ -46,5 +46,16 @@
 </div>
 
 @stack('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.querySelector('aside nav');
+    const saved = sessionStorage.getItem('sidebar-scroll');
+    if (nav && saved) nav.scrollTop = parseInt(saved, 10);
+});
+window.addEventListener('beforeunload', () => {
+    const nav = document.querySelector('aside nav');
+    if (nav) sessionStorage.setItem('sidebar-scroll', nav.scrollTop);
+});
+</script>
 </body>
 </html>
